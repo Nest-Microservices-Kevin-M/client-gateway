@@ -2,20 +2,21 @@ import 'dotenv/config';
 import * as joi from 'joi';
 
 interface IEnvs {
+  NATS_SERVERS: string[];
   PORT: number;
-  PRODUCTS_MICROSERVICE_HOST: string;
-  PRODUCTS_MICROSERVICE_PORT: number;
 }
 
 const schema = joi
   .object({
+    NATS_SERVERS: joi.array().items(joi.string().required()),
     PORT: joi.number().required(),
-    PRODUCTS_MICROSERVICE_HOST: joi.string().required(),
-    PRODUCTS_MICROSERVICE_PORT: joi.number().required(),
   })
   .unknown(true);
 
-const { error, value } = schema.validate(process.env);
+const { error, value } = schema.validate({
+  ...process.env,
+  NATS_SERVERS: process.env.NATS_SERVERS?.split(','),
+});
 
 if (error) {
   throw new Error(error.message);
